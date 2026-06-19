@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<!-- ============================================
+     PROJECT: AI Verify - Deepfake Detection System
+     PURPOSE: Frontend UI for uploading and analyzing media files
+     DETECTION TYPES: Image, Video, Audio detection
+     TECH STACK: HTML5, CSS, JavaScript (ES6+)
+     LIBRARIES: ThreeJS (custom cursor)
+     ============================================ -->
+<html lang="en">
+    <!-- cspell:ignore analyzebtn -->
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Home Page - AI Verify</title>
+        <link rel="stylesheet" href="home.css">
+        </head>
+        <!-- Frontend page content -->
+<body>
+  <!-- LIBRARY: ThreeJS Tubes cursor (custom mouse pointer animation) -->
+  <canvas id="canvas"></canvas>
+  
+  <header>
+    <div class="logo">AI Verify</div>
+    <nav>
+      <a href="home.html">Home</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <!-- MEDIA UPLOAD: Accepts IMAGE, VIDEO, AUDIO files -->
+      <div class="upload-box" onclick="document.getElementById('mediaInput').click()">
+        <p style="color: #a78bfa;">Drop images, videos and audios</p>
+        <div class="upload-icons">
+          <!-- IMAGE DETECTION support -->
+          <span>🖼️</span>
+          <!-- VIDEO DETECTION support (CNN-LSTM model) -->
+          <span>🎥</span>
+          <!-- AUDIO DETECTION support (AudioClassifier model) -->
+          <span>🎵</span>
+        </div>
+        <!-- INPUT: File selector for media files (images, videos, audio) -->
+        <input type="file" id="mediaInput" accept="image/*,video/*,audio/*" hidden>
+      </div>
+      <!-- STATUS: Display file upload status -->
+      <p id="fileStatus"></p>
+      <!-- BUTTON: Triggers detection analysis via backend API -->
+     <button class="btn" id="analyzebtn" disabled>Scan now</button>
+    </div>
+    <!-- PREVIEW: Shows uploaded media preview -->
+    <div id="preview"></div>
+    <!-- RESULTS: Displays detection results (Real/Fake classification, confidence, etc.) -->
+    <div id="results" class="results"></div>
+  </div>
+  <section class="info-section">
+  <h2>Explore AI Verify</h2>
+
+  <div class="cards">
+
+    <div class="info-card">
+      <h3>📌 About Project</h3>
+      <p>
+        AI Verify is a deepfake detection system that analyzes images, videos, and audio to identify manipulated content using machine learning models.
+        It helps users verify authenticity and prevent misinformation.
+      </p>
+    </div>
+
+    <div class="info-card">
+      <h3>⚙️ How to Use</h3>
+      <p>
+        1. Upload your media file (image, video, or audio)<br>
+        2. Click "Scan now"<br>
+        3. Wait for analysis results<br>
+        4. View authenticity report with confidence score
+      </p>
+    </div>
+
+    <div class="info-card">
+      <h3>📊 Summary</h3>
+      <p>
+        ✔ Supports multiple media formats<br>
+        ✔ Fast and secure processing<br>
+        ✔ Uses AI models for detection<br>
+        ✔ Designed for real-world reliability
+      </p>
+    </div>
+
+  </div>
+</section>
+   
+  <script type="module">
+    import TuberCursor from "https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js"
+
+    const tubesapp=TuberCursor(document.getElementById("canvas"),{
+        tubes:{
+          colors:["#f967fb", "#53bc28", "#6958d5"],
+          lights:{
+            intensity:200,
+            colors:["#83f36e", "#fe8a2e", "#ff008a", "#60aed5"]
+          }
+        }
+    })
+  const mediaInput = document.getElementById('mediaInput');
+  const preview = document.getElementById('preview');
+  const analyzebtn = document.getElementById('analyzebtn');
+  const fileStatus = document.getElementById('fileStatus');
+  
+  let selectedFile = null;
+  let isFileReady = false;
+  let db = null;
+
+  // Initialize IndexedDB for storing files
+  function initDB() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open('AIVerifyDB', 1);
+      
+      request.onerror = () => {
+        console.error('❌ IndexedDB open error:', request.error);
+        reject(request.error);
+      };
+      
+      request.onsuccess = () => {
+        db = request.result;
+        console.log('✅ IndexedDB initialized');
+        resolve(db);
+      };
+      
+      request.onupgradeneeded = (event) => {
+        const database = event.target.result;
+        if (!database.objectStoreNames.contains('files')) {
+          database.createObjectStore('files', { keyPath: 'id' });
+          console.log('✅ Created files object store');
+        }
+      };
+      request.onsuccess=() => {
+        db = request.result;
+        console.log('✅ IndexedDB initialized successfully');
+        resolve(db);
+      };
+      request.onerror=() => {
+        console.error('❌ Failed to initialize IndexedDB:', request.error);
+        reject(request.error);
+      };
+    });
+  }
+
+  // Initialize DB on page load
+  initDB().catch(err => {
+    console.error('Failed to initialize DB:', err);
+    fileStatus.textContent = '⚠️ Storage initialization failed';
+  });
+
+  // Store file in IndexedDB
+  function storeFileInDB(file) {
+    return new Promise((resolve, reject) => {
+      if (!db) {
+        reject(new Error('Database not initialized'));
+        return;
+      }
+      
+      const transaction = db.transaction(['files'], 'readwrite');
+      const store = transaction.objectStore('files');
+      
+      const fileData = {
+        id: 'mediaFile',
+        file: file,
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        timestamp: Date.now()
+      };
+      
+      const request = store.put(fileData);
+      
+      request.onerror = () => {
+        console.error('❌ Failed to store file in DB:', request.error);
+        reject(request.error);
+      };
+      
+      request.onsuccess = () => {
+        console.log('✅ File stored in IndexedDB successfully');
+        resolve(fileData);
+      };
+    });
+  }
+
+  mediaInput.addEventListener('change', () => {
+    selectedFile = mediaInput.files[0];
+    if (!selectedFile) {
+      fileStatus.textContent = '';
+      analyzebtn.disabled = true;
+      return;
+    }
+    
+    // Show file is being processed
+    fileStatus.textContent = '📥 Processing file...';
+    analyzebtn.disabled = true;
+    isFileReady = false;
+    preview.innerHTML = "";
+
+    console.log('📂 File selected:', selectedFile.name);
+    console.log('📊 File type:', selectedFile.type);
+    console.log('💾 File size:', (selectedFile.size / (1024 * 1024)).toFixed(2), 'MB');
+
+    // Create object URL for preview
+    const objectURL = URL.createObjectURL(selectedFile);
+
+    // Show preview immediately
+    if (selectedFile.type.startsWith('image/')) {
+      console.log('🖼️ Creating image preview...');
+      const img = document.createElement('img');
+      img.src = objectURL;
+      preview.appendChild(img);
+    } else if (selectedFile.type.startsWith('video/')) {
+      console.log('🎥 Creating video preview...');
+      const video = document.createElement('video');
+      video.src = objectURL;
+      video.controls = true;
+      video.style.width = '100%';
+      preview.appendChild(video);
+    } else if (selectedFile.type.startsWith('audio/')) {
+      console.log('🎵 Creating audio preview...');
+      const audio = document.createElement('audio');
+      audio.src = objectURL;
+      audio.controls = true;
+      audio.style.width = '100%';
+      preview.appendChild(audio);
+    }
+
+    // Store file in IndexedDB instead of sessionStorage
+    storeFileInDB(selectedFile)
+      .then(() => {
+        // Store metadata in sessionStorage (lightweight)
+        sessionStorage.setItem('mediaType', selectedFile.type);
+        sessionStorage.setItem('mediaName', selectedFile.name);
+        sessionStorage.setItem('mediaSize', selectedFile.size);
+        
+        isFileReady = true;
+        analyzebtn.disabled = false;
+        fileStatus.textContent = '✅ Ready to analyze! Click "Scan now"';
+        console.log('✅ File ready for upload');
+      })
+      .catch(err => {
+        console.error('❌ Error storing file:', err);
+        fileStatus.textContent = '❌ Error processing file. Try again.';
+        analyzebtn.disabled = true;
+        isFileReady = false;
+      });
+  });
+
+  analyzebtn.addEventListener('click', () => {
+    if (!selectedFile) {
+      alert('Please select a file first');
+      return;
+    }
+    
+    if (!isFileReady) {
+      alert('Please wait for the file to finish processing');
+      return;
+    }
+    
+    console.log('🚀 Navigating to scan page with file:', selectedFile.name);
+    window.location.href = 'scan.html';
+  });
+</script>
+</body>
+</html>

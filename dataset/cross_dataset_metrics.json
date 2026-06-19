@@ -1,0 +1,18 @@
+{
+  "train_on": "../images/demo",
+  "test_on": "../images/demo1",
+  "model_arch": "resnet50",
+  "metrics": {
+    "accuracy": 0.9649122807017544,
+    "precision": 1.0,
+    "recall": 0.9259259259259259,
+    "f1": 0.9615384615384616,
+    "auc": 0.9950617283950618,
+    "tn": 30,
+    "fp": 0,
+    "fn": 2,
+    "tp": 25,
+    "ece": 0.03550830461263304
+  },
+  "note": "For strong claims: train on FF++, test on Celeb-DF/DFDC."
+}

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<!-- ============================================
+     FILE: scan.html - Results page
+     PURPOSE: Display AI Verify detection results
+     COMPONENTS: Preview media, detection results, confidence scores
+     TECH: HTML5, CSS, JavaScript (ES6+), IndexedDB (local storage)
+     ============================================ -->
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>scanning media</title>
+        <link rel="stylesheet" href="home.css"/>
+    </head>
+    <body>
+      <!-- LIBRARY: ThreeJS Tubes cursor -->
+      <canvas id="canvas"> </canvas>
+      
+      <!-- HEADER: Navigation menu -->
+        <header>
+            <div class="logo">AI Verify</div>
+            <nav>
+                <a href="home.html">Home</a>
+                <a href="about.html">About</a>
+            </nav>
+        </header>
+        
+        <!-- MAIN CONTENT: Results display area -->
+        <div class="container">
+            <div class="card">
+                <!-- STATUS: Scanning progress message -->
+                <h2>Scanning your media, please wait...</h2>
+                <!-- PREVIEW: Shows uploaded media -->
+                <div id="preview"></div>
+                <!-- RESULTS: Displays detection output (Real/Fake, confidence, type) -->
+                <div id="results" class="results"></div>
+            </div>
+        </div>
+        
+        <!-- ACTION: Button to start new scan -->
+        <button class="btn" id="analyzebtn" onclick="window.location.href='home.html'">Scan New Media</button>
+        
+        <!-- JAVASCRIPT: Detection logic and result handling -->
+       <script type="module">
+        import TuberCursor from "https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js"
+
+    const tubesapp=TuberCursor(document.getElementById("canvas"),{
+        tubes:{
+          colors:["#f967fb", "#53bc28", "#6958d5"],
+          lights:{
+            intensity:200,
+            colors:["#83f36e", "#fe8a2e", "#ff008a", "#60aed5"]
+          }
+        }
+    })
+  const preview = document.getElementById('preview');
+  const resultEl = document.getElementById('results');
+
+  let db = null;
+
+  // Initialize IndexedDB
+  function initDB() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open('AIVerifyDB', 1);
+      
+      request.onerror = () => {
+        console.error('❌ IndexedDB open error:', request.error);
+        reject(request.error);
+      };
+      
+      request.onsuccess = () => {
+        db = request.result;
+        console.log('✅ IndexedDB initialized on scan page');
+        resolve(db);
+      };
+      
+      request.onupgradeneeded = (event) => {
+        const database = event.target.result;
+        if (!database.objectStoreNames.contains('files')) {
+          database.createObjectStore('files', { keyPath: 'id' });
+        }
+      };
+    });
+  }
+
+  // Retrieve file from IndexedDB
+  function getFileFromDB() {
+    return new Promise((resolve, reject) => {
+      if (!db) {
+        reject(new Error('Database not initialized'));
+        return;
+      }
+      
+      const transaction = db.transaction(['files'], 'readonly');
+      const store = transaction.objectStore('files');
+      const request = store.get('mediaFile');
+      
+      request.onerror = () => {
+        console.error('❌ Error retrieving file from DB:', request.error);
+        reject(request.error);
+      };
+      
+      request.onsuccess = () => {
+        const result = request.result;
+        if (!result) {
+          reject(new Error('File not found in IndexedDB'));
+        } else {
+          console.log('✅ File retrieved from IndexedDB:', result.name);
+          resolve(result);
+        }
+      };
+    });
+  }
+
+  // Main execution
+  async function initializePage() {
+    try {
+      console.log('=== SCAN PAGE DEBUG INFO ===');
+      
+      // Retrieve metadata from sessionStorage
+      const mediaType = sessionStorage.getItem('mediaType');
+      const mediaName = sessionStorage.getItem('mediaName');
+      const mediaSize = sessionStorage.getItem('mediaSize');
+
+      console.log('mediaName:', mediaName);
+      console.log('mediaType:', mediaType);
+      console.log('mediaSize:', mediaSize);
+
+      // Validate metadata exists
+      if (!mediaType || !mediaName) {
+        throw new Error('Missing metadata in sessionStorage');
+      }
+
+      // Initialize DB and retrieve file
+      await initDB();
+      const fileData = await getFileFromDB();
+      const file = fileData.file;
+
+      console.log('✅ File data retrieved successfully');
+      console.log('File object:', {
+        name: file.name,
+        type: file.type,
+        size: file.size
+      });
+
+      // Step 1: Display preview using object URL
+      console.log('Step 1: Creating preview element...');
+      const objectURL = URL.createObjectURL(file);
+
+      if (mediaType.startsWith('image/')) {
+        console.log('🖼️ Creating image preview...');
+        const img = document.createElement('img');
+        img.src = objectURL;
+        img.style.maxWidth='400px';
+        img.style.maxHeight='400px';
+        img.style.width='100%';
+        img.style.borderRadius='20px';
+        img.style.marginTop = '10px';
+        img.style.objectFit = 'contain';
+        img.onerror = function() {
+          console.error('❌ Image failed to load');
+        };
+        img.onload = function() {
+          console.log('✅ Image loaded successfully');
+        };
+        preview.appendChild(img);
+      } else if (mediaType.startsWith('video/')) {
+        console.log('🎥 Creating video preview...');
+        const video = document.createElement('video');
+        video.src = objectURL;
+        video.controls = true;
+        video.style.width = '100%';
+        video.style.maxHeight='400px';
+        video.style.maxWidth = '400px';
+        video.style.borderRadius = '10px';
+        video.style.marginTop = '10px';
+        video.style.objectFit='contain';
+        video.onerror = function() {
+          console.error('❌ Video failed to load');
+        };
+        video.onloadedmetadata = function() {
+          console.log('✅ Video loaded successfully');
+        };
+        preview.appendChild(video);
+      } else if (mediaType.startsWith('audio/')) {
+        console.log('🎵 Creating audio preview...');
+        const audio = document.createElement('audio');
+        audio.src = objectURL;
+        audio.controls = true;
+        audio.style.width = '100%';
+        audio.style.maxWidth = '700px';
+        audio.style.marginTop = '10px';
+        
+        audio.onerror = function() {
+          console.error('❌ Audio failed to load');
+        };
+        audio.onloadedmetadata = function() {
+          console.log('✅ Audio loaded successfully');
+        };
+        preview.appendChild(audio);
+      } else {
+        throw new Error('Unknown media type: ' + mediaType);
+      }
+
+      // Step 2: Show loading state and upload
+      console.log('Step 2: Showing loading state...');
+      resultEl.innerHTML = '<p style="color:#a78bfa;">⏳ Analyzing media... This may take a moment.</p>';
+
+      // Step 3: Upload to backend
+      console.log('Step 3: Uploading to backend...');
+      const formData = new FormData();
+      formData.append('media', file);
+
+      const response = await fetch('http://localhost:3000/analyze', {
+        method: 'POST',
+        body: formData
+      });
+
+      console.log('✅ Response received from server');
+      console.log('Response status:', response.status);
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Response parsed as JSON:', data);
+
+      // Step 4: Display results
+      console.log('Step 4: Displaying results...');
+      const resultText = (data.result || '').toLowerCase();
+      const cls = resultText.includes('inconclusive')
+        ? 'unknown'
+        : (resultText.includes('ai') ? 'fake' : 'real');
+      const toPct = (v) => `${(v * 100).toFixed(1)}%`;
+      const fmtRange = (r) => {
+        if (!Array.isArray(r) || r.length !== 2) return 'N/A';
+        return `${toPct(r[0])}–${toPct(r[1])}`;
+      };
+      const confRange = fmtRange(data.confidence_range || [data.confidence, data.confidence]);
+      const f1Range = fmtRange(data.f1_range);
+      const recallRange = fmtRange(data.recall_range);
+      const deepfakeType = data.deepfake_type || 'Unknown';
+      
+      resultEl.innerHTML = `
+        <h3 style="color: white">Analysis Results:</h3>
+        <p class="${cls}"><strong>${data.result}</strong></p>
+        <p style="margin-top:10px; color:white"><strong>Deepfake Type:</strong> ${deepfakeType}</p>
+        <div style="color:white;<div style="color:#e5e7eb; font-size: 14px; margin-top: 12px; padding: 15px; background: rgba(20,20,20,0.35); border-radius: 10px;">
+  <p><strong>Model Metrics:</strong></p>"
+           <label>✅ Confidence (${confRange})</label>
+  <input type="range" min="0" max="100" value="${(data.confidence || 0)*100}" disabled style="width:100%;">
+
+  <label style="margin-top:10px; display:block;">🎯 F1 Score (${f1Range})</label>
+  <input type="range" min="0" max="100" value="${(data.f1_range ? data.f1_range[1]*100 : 0)}" disabled style="width:100%;">
+
+  <label style="margin-top:10px; display:block;">📈 Recall (${recallRange})</label>
+  <input type="range" min="0" max="100" value="${(data.recall_range ? data.recall_range[1]*100 : 0)}" disabled style="width:100%;">
+</div>
+        <div style="color:#9ca3af; font-size: 14px; margin-top: 15px; padding: 10px; background: rgba(100,100,100,0.1); border-radius: 8px;">
+          <p><strong>File Details:</strong></p>
+          <p>📄 Name: ${mediaName}</p>
+          <p>📊 Type: ${mediaType}</p>
+          <p>💾 Size: ${(mediaSize / 1024).toFixed(2)} KB</p>
+        </div>
+      `;
+      
+      console.log('✅ Results displayed successfully');
+      
+      // Clear storage after displaying results
+      setTimeout(() => {
+        sessionStorage.clear();
+        const transaction = db.transaction(['files'], 'readwrite');
+        const store = transaction.objectStore('files');
+        store.delete('mediaFile');
+        console.log('✅ Cleared sessionStorage and IndexedDB');
+      }, 3000);
+
+    } catch (error) {
+      console.error('❌ Error:', error.message);
+      console.error('Full error:', error);
+      
+      let errorMessage = error.message;
+      if (error.message.includes('not found in IndexedDB')) {
+        errorMessage = 'File not found. Please go back and upload a file again.';
+      } else if (error.message.includes('Missing metadata')) {
+        errorMessage = 'Missing file metadata. Please go back and upload a file again.';
+      } else if (error.message.includes('Server error')) {
+        errorMessage = 'Backend error. Make sure the server is running on http://localhost:3000';
+      } else if (error.message.includes('Failed to fetch')) {
+        errorMessage = 'Cannot connect to backend. Make sure the server is running on http://localhost:3000';
+      }
+      
+      resultEl.innerHTML = `
+        <p style="color:red;">
+          <strong>Error:</strong> ${errorMessage}
+          <br><small style="color:#9ca3af;">Check browser console (F12) for detailed error information.</small>
+        </p>
+      `;
+    }
+  }
+
+  // Start the page initialization
+  initializePage();
+</script>
+
+
+
+       </body>
+</html>

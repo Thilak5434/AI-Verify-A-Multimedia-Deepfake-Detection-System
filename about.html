@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<!-- ============================================
+     FILE: about.html - Project information page
+     PURPOSE: Display project details, tech stack, features
+     COMPONENTS: Project description, methodology, models, team info
+     TECH: HTML5, CSS
+     ============================================ -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About - AI Verify</title>
+    <link rel="stylesheet" href="home.css" />
+    <style>
+      .about-hero {
+        text-align: center;
+        margin-bottom: 28px;
+      }
+      .about-hero h1 {
+        color: #a78bfa;
+        font-size: 36px;
+        margin-bottom: 10px;
+      }
+      .about-hero p {
+        color: #cbd5f5;
+        font-size: 16px;
+        line-height: 1.7;
+      }
+      .about-section {
+        margin-top: 20px;
+      }
+      .about-section h2 {
+        color: #a78bfa;
+        font-size: 22px;
+        margin-bottom: 10px;
+      }
+      .about-section h3 {
+        color: #93c5fd;
+        font-size: 17px;
+        margin: 12px 0 6px;
+      }
+      .about-section p {
+        color: #e2e8f0;
+        line-height: 1.7;
+        font-size: 15px;
+      }
+      .about-list {
+        margin-top: 8px;
+        padding-left: 18px;
+        color: #e2e8f0;
+        line-height: 1.7;
+        font-size: 15px;
+      }
+      .about-card {
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(229, 228, 228, 0.5);
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <header>
+      <div class="logo">AI Verify</div>
+      <nav>
+        <a href="home.html">Home</a>
+        <a href="about.html">About</a>
+      </nav>
+    </header>
+
+    <div class="container">
+      <div class="card about-card">
+        <div class="about-hero">
+          <h1>About This Project</h1>
+          <p>
+            AI Verify is a deepfake detection system built to help people verify the
+            authenticity of images, videos, and audio. It combines modern deep learning
+            models with calibration and uncertainty estimation so that decisions are both
+            accurate and transparent.
+          </p>
+          <p>
+            The goal is simple: provide a clear, fast, and trustworthy answer when people
+            need to know if media is real or synthetic. This page explains why the project
+            exists, what problem it solves, and how it works in practical terms.
+          </p>
+        </div>
+      </div>
+
+      <div class="card about-card about-section">
+        <h2>1. Introduction</h2>
+        <p>
+          Synthetic media is becoming more convincing every day. This project provides
+          a reliable way to detect AI-generated content and highlight potential tampering
+          before it spreads.
+        </p>
+        <p>
+          Deepfakes are no longer rare experiments; they are now common across social
+          media platforms and messaging apps. People see edited clips and synthetic voices
+          that can influence decisions in seconds.
+        </p>
+        <p>
+          AI Verify is designed as a practical, user-friendly checkpoint. It does not
+          replace human judgment, but it helps users make faster and better decisions.
+        </p>
+        <h3>Context</h3>
+        <p>
+          The rise of generative AI has made it easy to create realistic images, videos,
+          and voice clips. That power is exciting, but it also introduces risk when content
+          is shared without verification.
+        </p>
+        <p>
+          This project focuses on everyday verification rather than only high-end forensic
+          labs. It aims to be accessible to students, journalists, and general users.
+        </p>
+        <p>
+          As creation tools become cheaper, detection must become simpler and more
+          transparent so that non-experts can use it confidently.
+        </p>
+        <h3>Goal</h3>
+        <p>
+          AI Verify acts as a fast and accessible checkpoint so users can make informed
+          decisions before trusting or sharing media.
+        </p>
+        <p>
+          The system provides probability and confidence signals, not just labels, so
+          people can understand how strong the evidence is.
+        </p>
+        <p>
+          Over time, this approach supports safer digital communities by reducing the
+          spread of misleading content.
+        </p>
+      </div>
+
+      <div class="card about-card about-section">
+        <h2>2. Problem Statement</h2>
+        <p>
+          Deepfakes can be used to manipulate public opinion, damage reputations, and
+          spread misinformation. Manual verification is slow and inconsistent, making
+          it difficult to protect users at scale.
+        </p>
+        <p>
+          When fake content spreads faster than verification, harmful narratives can take
+          hold before corrections are seen. This gap creates real social and personal risk.
+        </p>
+        <p>
+          The core problem is speed and scale. Human-only review does not match the volume
+          of media being created and shared each day.
+        </p>
+        <h3>Risks</h3>
+        <p>
+          Misleading content can travel quickly across social platforms, and once it is
+          shared widely, the damage is hard to reverse.
+        </p>
+        <p>
+          Fraud and impersonation also increase when people cannot quickly validate the
+          authenticity of videos and voice recordings.
+        </p>
+        <p>
+          Even small edits can change the context of a message, leading to false claims
+          and mistrust among users.
+        </p>
+        <h3>Challenges</h3>
+        <p>
+          Traditional verification is time-consuming and depends on expert review, which
+          does not scale for everyday users.
+        </p>
+        <p>
+          Platforms need automated tools that can run quickly and return a clear answer
+          without requiring advanced technical knowledge.
+        </p>
+        <p>
+          The system must also handle different media types and still provide consistent
+          confidence signals across them.
+        </p>
+      </div>
+
+      <div class="card about-card about-section">
+        <h2>3. Solution I Provide</h2>
+        <p>
+          This system analyzes media files and outputs the probability that the content
+          is AI generated. It supports images, videos, and audio, and uses calibrated
+          probabilities so results are meaningful and easy to interpret.
+        </p>
+        <p>
+          The solution is built around a practical workflow: upload media, run analysis,
+          and get a clear result with confidence. The goal is to remove confusion and
+          provide quick guidance for users.
+        </p>
+        <p>
+          The model can be updated with new data and retrained as new generation techniques
+          appear. This keeps the system relevant as technology changes.
+        </p>
+        <h3>Detection Pipeline</h3>
+        <p>
+          The model extracts visual and temporal patterns from media and produces a
+          probability score indicating how likely the content is to be synthetic.
+        </p>
+        <p>
+          For images, the model focuses on texture, compression, and consistency signals
+          that often reveal AI generation using ResNet-based architectures.
+        </p>
+        <p>
+          For videos, the system uses frame sampling and temporal reasoning with CNN-LSTM
+          networks to reduce errors from single frames or noisy artifacts. It analyzes
+          multiple frames in sequence to detect temporal inconsistencies.
+        </p>
+        <p>
+          For audio, the system extracts mel-spectrogram features from voice recordings
+          and uses convolutional neural networks to detect voice synthesis and voice conversion
+          artifacts. Voice deepfakes often have subtle artifacts in frequency patterns that
+          reveal synthetic generation.
+        </p>
+        <h3>Trust Signals</h3>
+        <p>
+          Along with the final label, the system provides confidence and uncertainty
+          indicators so users can understand how strong the evidence is.
+        </p>
+        <p>
+          This approach helps avoid overconfidence and encourages users to review
+          suspicious content more carefully.
+        </p>
+        <p>
+          Transparent outputs build trust in the tool itself, which is essential for
+          adoption in real-world environments.
+        </p>
+      </div>
+
+      <div class="card about-card about-section">
+        <h2>4. Technology Used</h2>
+        <h3>Core Stack</h3>
+        <p>
+          The core backend is built in Python with PyTorch and TorchVision for model
+          training and inference. OpenCV and Pillow handle image and video processing.
+        </p>
+        <p>
+          FastAPI and Uvicorn provide a lightweight and fast server that can accept
+          uploads and return results quickly.
+        </p>
+        <p>
+          NumPy and scikit-learn are used for metrics, evaluation, and calibration.
+        </p>
+        <ul class="about-list">
+          <li>Python</li>
+          <li>PyTorch and TorchVision</li>
+          <li>OpenCV and Pillow (PIL)</li>
+          <li>Librosa (audio feature extraction)</li>
+          <li>FastAPI and Uvicorn</li>
+          <li>NumPy and scikit-learn (metrics and calibration)</li>
+        </ul>
+        <h3>Frontend and UX</h3>
+        <p>
+          The interface is built with HTML, CSS, and JavaScript to keep it lightweight
+          and easy to run in any browser.
+        </p>
+        <p>
+          IndexedDB is used to store files securely on the client side before analysis,
+          reducing upload friction and improving stability.
+        </p>
+        <p>
+          The Tube Cursor animation adds a modern and engaging visual effect without
+          interfering with the core workflow.
+        </p>
+        <ul class="about-list">
+          <li>HTML, CSS, JavaScript</li>
+          <li>IndexedDB (browser storage)</li>
+          <li>Threejs Components (Tube Cursor animation)</li>
+        </ul>
+      </div>
+
+      <div class="card about-card about-section">
+        <h2>5. How to Use (Steps)</h2>
+        <h3>Start the Scan</h3>
+        <p>
+          The workflow is designed to be simple and fast. Users only need a browser and
+          a media file to begin.
+        </p>
+        <p>
+          The upload panel accepts images, videos, and audio files, and the system prepares
+          them for analysis automatically.
+        </p>
+        <p>
+          After upload, the Scan button triggers analysis and returns a clear prediction.
+        </p>
+        <ul class="about-list">
+          <li>Open the Home page.</li>
+          <li>Upload an image, video, or audio file.</li>
+          <li>Click "Scan now" to analyze the media.</li>
+          <li>View the result and confidence score.</li>
+        </ul>
+        <h3>Interpret the Result</h3>
+        <p>
+          A higher fake probability suggests AI-generated content, while lower values
+          point to authentic media.
+        </p>
+        <p>
+          For audio specifically, the system analyzes voice patterns and frequency signatures.
+          Synthetic voices often show consistent artifacts in mel-spectrograms that differ
+          from natural human speech variations. A high fake probability for audio indicates
+          voice generation, impersonation, or voice conversion.
+        </p>
+        <p>
+          The confidence value explains how strongly the model believes in its prediction.
+          This helps users decide whether to trust the result or seek more evidence.
+        </p>
+        <p>
+          The system can also be used as a second opinion when users are unsure about
+          suspicious content they receive.
+        </p>
+      </div>
+
+      <div class="card about-card about-section">
+        <h2>6. Who Can Benefit</h2>
+        <h3>Primary Users</h3>
+        <p>
+          People who frequently encounter news, shared clips, or user-generated content
+          benefit from faster verification and clearer decisions.
+        </p>
+        <p>
+          Journalists, researchers, and educators can use the tool to validate sources
+          and teach media literacy in classrooms and workshops.
+        </p>
+        <p>
+          Content creators can protect their work by verifying the authenticity of
+          collaborations, clips, and trending media.
+        </p>
+        <ul class="about-list">
+          <li>Journalists and fact-checkers</li>
+          <li>Researchers and educators</li>
+          <li>Content creators and media platforms</li>
+        </ul>
+        <h3>Secondary Users</h3>
+        <p>
+          Security teams can use AI Verify as a lightweight first filter before deeper
+          forensic investigation.
+        </p>
+        <p>
+          Compliance teams can integrate detection into review workflows to reduce the
+          risk of misinformation or impersonation.
+        </p>
+        <p>
+          General users benefit by gaining confidence before sharing or reacting to
+          questionable media.
+        </p>
+        <ul class="about-list">
+          <li>Cybersecurity and compliance teams</li>
+          <li>General users verifying online media</li>
+        </ul>
+      </div>
+
+      <div class="card about-card about-section">
+        <h2>7. Conclusion</h2>
+        <p>
+          AI Verify helps build trust in digital media by offering a fast and dependable
+          way to detect AI-generated content. As synthetic media grows, tools like this
+          are essential for safe and informed decisions.
+        </p>
+        <p>
+          The system is designed to be clear, accurate, and transparent, so users can
+          understand why a result is returned.
+        </p>
+        <p>
+          By combining strong models with user-friendly design, the project delivers
+          practical value for real-world verification.
+        </p>
+        <h3>Impact</h3>
+        <p>
+          The project reduces the time required to verify media while giving users clear,
+          evidence-based results. It also encourages responsible sharing by providing a
+          quick check before content goes viral.
+        </p>
+        <p>
+          Clear outputs help fight misinformation by giving everyday users the ability
+          to validate claims for themselves.
+        </p>
+        <p>
+          Over time, this strengthens trust in digital communities and reduces harm.
+        </p>
+        <h3>Future Direction</h3>
+        <p>
+          The system can be extended with stronger datasets, model updates, and broader
+          support for emerging manipulation techniques.
+        </p>
+        <p>
+          Future versions can add multilingual support, better explainability, and
+          deeper integration into media platforms.
+        </p>
+        <p>
+          Continuous improvement ensures the detector stays relevant as AI generation
+          technology evolves.
+        </p>
+      </div>
+    </div>
+
+    <script type="module">
+      import TuberCursor from "https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js";
+
+      const tubesapp = TuberCursor(document.getElementById("canvas"), {
+        tubes: {
+          colors: ["#f967fb", "#53bc28", "#6958d5"],
+          lights: {
+            intensity: 200,
+            colors: ["#83f36e", "#fe8a2e", "#ff008a", "#60aed5"],
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

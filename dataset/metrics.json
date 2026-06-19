@@ -1,0 +1,30 @@
+{
+  "model_arch": "resnet50",
+  "val_uncalibrated": {
+    "accuracy": 0.9842105263157894,
+    "precision": 0.9827586206896551,
+    "recall": 0.9661016949152542,
+    "f1": 0.9743589743589743,
+    "auc": 0.9987061715616509,
+    "tn": 130,
+    "fp": 1,
+    "fn": 2,
+    "tp": 57,
+    "ece": 0.01422512521222492
+  },
+  "val_calibrated": {
+    "accuracy": 0.9842105263157894,
+    "precision": 0.9827586206896551,
+    "recall": 0.9661016949152542,
+    "f1": 0.9743589743589743,
+    "auc": 0.9987061715616509,
+    "tn": 130,
+    "fp": 1,
+    "fn": 2,
+    "tp": 57,
+    "ece": 0.014516671726957742
+  },
+  "threshold": 0.21000000000000002,
+  "temperature": 1.140653133392334,
+  "notes": "ResNet-based detector with temperature scaling and PGD adversarial training"
+}
